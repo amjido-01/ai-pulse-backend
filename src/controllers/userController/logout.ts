@@ -9,7 +9,6 @@ export const logout = async (req: Request, res: Response): Promise<any> => {
           data: { refreshToken: null },
         });
       }
-
     res.clearCookie("refreshToken")
     res.json({ message: 'Logged out successfully' });
 };
