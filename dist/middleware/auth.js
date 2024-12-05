@@ -7,7 +7,7 @@ exports.authenticateToken = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const authenticateToken = (req, res, next) => {
     const token = req.cookies.refreshToken;
-    console.log(token, "from middleware");
+    // console.log(token, "from middleware")
     if (!token) {
         res.status(401).json({ message: 'Authentication required' });
         return;

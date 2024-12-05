@@ -3,7 +3,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies.refreshToken;
-  console.log(token, "from middleware")
+  // console.log(token, "from middleware")
 
   if (!token) {
     res.status(401).json({ message: 'Authentication required' });

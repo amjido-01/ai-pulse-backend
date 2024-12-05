@@ -18,7 +18,7 @@ const db_1 = __importDefault(require("../../config/db"));
 const jwtUtils_1 = require("../../utils/jwtUtils");
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
-    console.log(req.cookies.refreshToken);
+    // console.log(req.cookies.refreshToken)
     try {
         // Validate input
         if (!email || !password) {
@@ -46,7 +46,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             id: existingUser.id,
             email: existingUser.email
         });
-        console.log(refreshToken, "from login");
+        // console.log(refreshToken, "from login")
         yield db_1.default.user.update({
             where: { id: existingUser.id },
             data: { refreshToken: refreshToken }

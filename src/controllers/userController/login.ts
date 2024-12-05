@@ -5,7 +5,7 @@ import { generateAccessToken, generateRefreshToken } from "../../utils/jwtUtils"
 
 export const login = async (req: Request, res: Response): Promise<any> => {
     const { email, password } = req.body;
-    console.log(req.cookies.refreshToken)
+    // console.log(req.cookies.refreshToken)
 
     try {
         // Validate input
@@ -39,7 +39,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
             id: existingUser.id,
             email: existingUser.email
         })
-        console.log(refreshToken, "from login")
+        // console.log(refreshToken, "from login")
         await prisma.user.update({
             where: {id: existingUser.id},
             data: {refreshToken: refreshToken}

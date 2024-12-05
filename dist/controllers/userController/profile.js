@@ -15,16 +15,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.profile = void 0;
 const db_1 = __importDefault(require("../../config/db"));
 const profile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let userData = req === null || req === void 0 ? void 0 : req.user;
-    // console.log(userData, "from profile")
+    let userData = yield (req === null || req === void 0 ? void 0 : req.user);
+    console.log(userData, "from profile");
+    console.log("hello world");
     try {
         const user = yield db_1.default.user.findUnique({
             where: { id: userData.id }
         });
+        console.log("hello", user);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        res.json({ user, message: "This is a protected route" });
+        res.json({ user, message: "This is a protected .....route" });
     }
     catch (error) {
         console.error('Error fetching user data:', error);
