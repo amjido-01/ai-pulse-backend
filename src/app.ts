@@ -6,14 +6,10 @@ import cookieParser from "cookie-parser";
 const app = express();
 const port = process.env.PORT || 8080;
 
-
-var corsOptions = {
-  origin: 'https://ai-pulse-backend.onrender.com',
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
-
 // app.use(cors({ origin: p, credentials: true }));
-app.use(cors(corsOptions))
+app.use(cors({
+  origin: 'https://ai-pulse-backend.onrender.com',
+}))
 app.use(express.json());
 app.use(cookieParser());
 

@@ -9,12 +9,10 @@ const cors_1 = __importDefault(require("cors"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const app = (0, express_1.default)();
 const port = process.env.PORT || 8080;
-var corsOptions = {
-    origin: 'https://ai-pulse-backend.onrender.com',
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-};
 // app.use(cors({ origin: p, credentials: true }));
-app.use((0, cors_1.default)(corsOptions));
+app.use((0, cors_1.default)({
+    origin: 'https://ai-pulse-backend.onrender.com',
+}));
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
 app.use(index_1.default);
