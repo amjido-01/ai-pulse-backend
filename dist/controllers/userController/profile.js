@@ -20,13 +20,14 @@ const profile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("hello world");
     try {
         const user = yield db_1.default.user.findUnique({
-            where: { id: userData.id }
+            where: { id: userData.id },
+            select: { id: true, email: true },
         });
         console.log("hello", user);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        res.json({ user, message: "This is a protected .....route" });
+        res.json({ user, message: "This is a protected route" });
     }
     catch (error) {
         console.error('Error fetching user data:', error);
