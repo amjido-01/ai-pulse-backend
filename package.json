@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "app.ts",
   "scripts": {
-    "dev": "ts-node-dev src/app.ts",
+    "dev": "npx tsx --env-file=.env --watch src/app.ts ",
     "start": "node ./dist/app.js",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"

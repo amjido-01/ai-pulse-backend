@@ -47,6 +47,8 @@ const refreshToken = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         res.json({ accessToken });
     }
     catch (error) {
+        console.error('Error during token refresh:', error);
+        return res.status(500).json({ message: 'An error occurred while refreshing token' });
     }
 });
 exports.refreshToken = refreshToken;

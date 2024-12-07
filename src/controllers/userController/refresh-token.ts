@@ -40,6 +40,7 @@ export const refreshToken = async (req: Request, res: Response): Promise<any | s
 
           res.json({ accessToken })
     } catch (error) {
-        
+      console.error('Error during token refresh:', error);
+      return res.status(500).json({ message: 'An error occurred while refreshing token' });
     }
 }

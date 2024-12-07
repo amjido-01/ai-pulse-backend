@@ -16,8 +16,7 @@ exports.profile = void 0;
 const db_1 = __importDefault(require("../../config/db"));
 const profile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let userData = yield (req === null || req === void 0 ? void 0 : req.user);
-    console.log(userData, "from profile");
-    console.log("hello world");
+    // console.log(userData, "from backend profile")
     try {
         const user = yield db_1.default.user.findUnique({
             where: { id: userData.id },
