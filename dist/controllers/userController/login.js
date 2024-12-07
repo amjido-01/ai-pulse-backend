@@ -46,7 +46,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             id: existingUser.id,
             email: existingUser.email
         });
-        // console.log(refreshToken, "from login")
+        console.log(refreshToken, "from login");
         yield db_1.default.user.update({
             where: { id: existingUser.id },
             data: { refreshToken: refreshToken }
@@ -71,4 +71,5 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.login = login;
+// 5bcb88d58ff9
 //# sourceMappingURL=login.js.map

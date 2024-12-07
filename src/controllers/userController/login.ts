@@ -39,7 +39,8 @@ export const login = async (req: Request, res: Response): Promise<any> => {
             id: existingUser.id,
             email: existingUser.email
         })
-        // console.log(refreshToken, "from login")
+
+        console.log(refreshToken, "from login")
         await prisma.user.update({
             where: {id: existingUser.id},
             data: {refreshToken: refreshToken}
@@ -64,3 +65,4 @@ export const login = async (req: Request, res: Response): Promise<any> => {
         return res.status(500).json({ message: "An error occurred during login" });
     }
 };
+// 5bcb88d58ff9
