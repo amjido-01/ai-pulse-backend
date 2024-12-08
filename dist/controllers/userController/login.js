@@ -51,12 +51,19 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             where: { id: existingUser.id },
             data: { refreshToken: refreshToken }
         });
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
+        const myToken = res.cookie('refreshToken', refreshToken, {
+            httpOnly: false,
             secure: process.env.NODE_ENV === 'production',
             sameSite: "strict",
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
+        if (myToken) {
+            console.log(myToken, "set successfully");
+            return;
+        }
+        else {
+            console.log("not set");
+        }
         // Send tokens as response
         return res.status(200).json({
             message: "Login successful",
