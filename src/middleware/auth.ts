@@ -10,7 +10,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     return
   }
   try {
-    const user = jwt.verify(token, process.env.JWT_REFRESH_SECRET as string) as JwtPayload;
+    const user = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
     if (user) {
         (req as any).user = user;
         next();

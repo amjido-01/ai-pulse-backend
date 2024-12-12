@@ -7,12 +7,14 @@ const app = express();
 const port = process.env.PORT || 8080;
 
 // app.use(cors({ origin: p, credentials: true }));
+app.use(cookieParser());
+
 app.use(cors({
   origin: '*',
   credentials: true
 }))
+
 app.use(express.json());
-app.use(cookieParser());
 
 
 app.use(routes)
