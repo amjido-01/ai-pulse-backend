@@ -10,10 +10,7 @@ const port = process.env.PORT || 8080;
 app.use(cookieParser());
 
 app.use(cors({
-  //origin: '*',
-  origin: true,
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-  allowedHeaders: "*",
+  origin: '*',
   credentials: true
 }))
 
@@ -21,6 +18,8 @@ app.use(express.json());
 
 
 app.use(routes)
+
+
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).send("API is running...");
