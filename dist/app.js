@@ -9,12 +9,16 @@ const cors_1 = __importDefault(require("cors"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const app = (0, express_1.default)();
 const port = process.env.PORT || 8080;
-// app.use(cors({ origin: p, credentials: true }));
+// CORS configuration
+const corsOptions = {
+    origin: process.env.FRONTEND_URL, // Replace with your frontend URL, e.g., 'http://localhost:3000'
+    credentials: true, // This allows the server to accept cookies
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use((0, cors_1.default)(corsOptions));
+app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
-app.use((0, cors_1.default)({
-    origin: '*',
-    credentials: true
-}));
 app.use(express_1.default.json());
 app.use(index_1.default);
 app.get("/", (req, res) => {
