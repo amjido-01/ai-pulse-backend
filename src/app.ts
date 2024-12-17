@@ -3,12 +3,14 @@ import  {Request, Response} from "express"
 import routes from "./routes/index"
 import cors from "cors"
 import cookieParser from "cookie-parser";
+
+
 const app = express();
 const port = process.env.PORT || 8080;
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.FRONTEND_URL, // Replace with your frontend URL, e.g., 'http://localhost:3000'
+  origin: process.env.FRONTEND_URL || "http://localhost:3000",// Replace with your frontend URL, e.g., 'http://localhost:3000'
   credentials: true, // This allows the server to accept cookies
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -18,7 +20,18 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(express.json());
+// Add this middleware to set CORS headers for all responses
+app.use((req: Request, res: Response, next): any => {
+  res.header('Access-Control-Allow-Origin', corsOptions.origin);
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  next();
+});
+
 app.use(routes)
 
 
