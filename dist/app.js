@@ -21,7 +21,7 @@ app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
 // Add this middleware to set CORS headers for all responses
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', corsOptions.origin);
+    res.header('Access-Control-Allow-Origin: *');
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');

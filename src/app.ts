@@ -22,7 +22,7 @@ app.use(cookieParser());
 
 // Add this middleware to set CORS headers for all responses
 app.use((req: Request, res: Response, next: NextFunction)  => {
-  res.header('Access-Control-Allow-Origin', corsOptions.origin);
+  res.header('Access-Control-Allow-Origin: *');
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
