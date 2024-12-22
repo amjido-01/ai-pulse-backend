@@ -10,7 +10,7 @@ const port = process.env.PORT || 8080;
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || "http://localhost:3000",// Replace with your frontend URL, e.g., 'http://localhost:3000'
+  origin: ["http://localhost:3000", "https://ai-pulse-frontend.vercel.app"],// Replace with your frontend URL, e.g., 'http://localhost:3000'
   credentials: true, // This allows the server to accept cookies
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
