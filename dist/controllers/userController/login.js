@@ -33,6 +33,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             return res.status(403).json({ message: "Invalid login credentials" });
         }
         // Verify password
+        // const salt = bcrypt.genSaltSync(10);
         const validPassword = yield bcrypt_1.default.compare(password, existingUser.password);
         if (!validPassword) {
             return res.status(403).json({ message: "Invalid login credentials" });
@@ -53,8 +54,8 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: true,
-            //   secure: process.env.NODE_ENV === 'production',
+            //   secure: true,
+            secure: process.env.NODE_ENV === 'production',
             sameSite: "none",
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
