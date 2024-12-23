@@ -24,7 +24,8 @@ export const login = async (req: Request, res: Response): Promise<any> => {
         }
 
         // Verify password
-        const validPassword = await bcrypt.compare(password, existingUser.password);
+        // const salt = bcrypt.genSaltSync(10);
+        const validPassword = await bcrypt.compare(password, existingUser.password)
         if (!validPassword) {
             return res.status(403).json({ message: "Invalid login credentials" });
         }
@@ -48,8 +49,8 @@ export const login = async (req: Request, res: Response): Promise<any> => {
 
        res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: true,
-    //   secure: process.env.NODE_ENV === 'production',
+    //   secure: true,
+      secure: process.env.NODE_ENV === 'production',
       sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
