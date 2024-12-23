@@ -8,7 +8,7 @@ const port = process.env.PORT || 8080;
 
 // CORS Configuration
 const corsOptions = {
-  origin: "http://localhost:3000/", // Replace with your frontend URL
+  origin: "https://ai-pulse-backend.onrender.com", // Replace with your frontend URL
   credentials: true, // Allow server to accept cookies
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
