@@ -1,6 +1,7 @@
 import { Response, Request } from "express";
 import bcrypt from "bcrypt"
 import prisma from "../../config/db";
+import { generateAccessToken, generateRefreshToken } from "../../utils/jwtUtils";
 
 export const register = async (req: Request, res: Response): Promise<any> => {
     const {name, email, password} = req.body;
@@ -32,10 +33,33 @@ export const register = async (req: Request, res: Response): Promise<any> => {
             }
         })
 
+         // Generate tokens
+         const accessToken = generateAccessToken({
+            id: user.id,
+            email: user.email
+        });
+
+        const refreshToken = generateRefreshToken({
+            id: user.id,
+            email: user.email
+        })
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true,
+          //   secure: process.env.NODE_ENV === 'production',
+            sameSite: "none",
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          });
+
         res.status(201).json({ 
             responseSuccessful: true,
             responseMessage: 'User created successfully',
-            responseBody: user
+            responseBody: {
+                user,
+                accessToken,
+                refreshToken
+            }
         });
 
     } catch (error) {
