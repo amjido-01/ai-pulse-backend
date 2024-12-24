@@ -2,7 +2,7 @@ import { Response, Request } from "express";
 import prisma from "../../config/db";
 export const profile = async (req: Request, res: Response): Promise<any> => {
     let userData = await (req as any)?.user
-    // console.log(userData, "from backend profile")
+    console.log(userData, "from backend profile")
     try {
         const user = await prisma.user.findUnique({
             where: {id: userData.id},

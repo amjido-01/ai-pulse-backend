@@ -22,4 +22,15 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   refreshToken String?
+  interest Interest[]
+}
+
+
+model Interest {
+  id       Int    @id @default(autoincrement())
+  interest String
+  user     User   @relation(fields: [userId], references: [id])
+  userId   String
+
+  @@unique([userId, interest])
 }

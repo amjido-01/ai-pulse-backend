@@ -7,6 +7,7 @@ import { logout } from "../controllers/userController/logout";
 import { profile } from "../controllers/userController/profile";
 import { authenticateToken } from "../middleware/auth";
 import { refreshToken } from "../controllers/userController/refresh-token";
+import { interests } from "../controllers/interestController/interests";
 const router = Router();
 
 
@@ -15,6 +16,7 @@ router.post("/login", login)
 router.post("/logout", logout)
 router.get("/users", authenticateToken, getUsers)
 router.get("/user/:id", getUser)
+router.post("/interests", authenticateToken, interests)
 router.post("/refresh-token", refreshToken)
 router.get("/profile", authenticateToken, profile)
 
