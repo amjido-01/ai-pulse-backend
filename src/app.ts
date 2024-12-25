@@ -8,7 +8,7 @@ const port = process.env.PORT || 8080;
 
 // CORS Configuration 
 const corsOptions = {
-  origin: ["http://localhost:3000", "https://ai-pulse-frontend.vercel.app"], // Replace with your frontend URL
+  origin: "http://localhost:3000", //"https://ai-pulse-frontend.vercel.app" Replace with your frontend URL
   credentials: true, // Allow server to accept cookies
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -26,7 +26,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   // if (origin && corsOptions.origin.includes(origin)) {
   //   res.header("Access-Control-Allow-Origin", origin);
   // }
-  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Origin', origin);
   res.header("Access-Control-Allow-Credentials", "true");
   res.header("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
