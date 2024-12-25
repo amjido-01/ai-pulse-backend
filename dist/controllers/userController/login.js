@@ -54,8 +54,8 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            //   secure: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: true,
+            //   secure: process.env.NODE_ENV === 'production',
             sameSite: "none",
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
@@ -73,5 +73,4 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.login = login;
-// 5bcb88d58ff9
 //# sourceMappingURL=login.js.map

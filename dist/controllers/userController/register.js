@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.register = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const db_1 = __importDefault(require("../../config/db"));
+const jwtUtils_1 = require("../../utils/jwtUtils");
 const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, email, password } = req.body;
     try {
@@ -40,10 +41,30 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 password: hashedPassword
             }
         });
+        // Generate tokens
+        const accessToken = (0, jwtUtils_1.generateAccessToken)({
+            id: user.id,
+            email: user.email
+        });
+        const refreshToken = (0, jwtUtils_1.generateRefreshToken)({
+            id: user.id,
+            email: user.email
+        });
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true,
+            //   secure: process.env.NODE_ENV === 'production',
+            sameSite: "none",
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
         res.status(201).json({
             responseSuccessful: true,
             responseMessage: 'User created successfully',
-            responseBody: user
+            responseBody: {
+                user,
+                accessToken,
+                refreshToken
+            }
         });
     }
     catch (error) {

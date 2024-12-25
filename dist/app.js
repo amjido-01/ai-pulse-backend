@@ -9,9 +9,9 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const index_1 = __importDefault(require("./routes/index"));
 const app = (0, express_1.default)();
 const port = process.env.PORT || 8080;
-// CORS Configuration
+// CORS Configuration 
 const corsOptions = {
-    origin: "http://localhost:3000/", // Replace with your frontend URL
+    origin: ["http://localhost:3000", "https://ai-pulse-frontend.vercel.app"], // Replace with your frontend URL
     credentials: true, // Allow server to accept cookies
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -22,12 +22,15 @@ app.use(express_1.default.json()); // Parse incoming JSON requests
 app.use((0, cookie_parser_1.default)()); // Parse cookies
 // Global CORS Headers Middleware
 app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", corsOptions.origin);
+    const origin = req.headers.origin;
+    if (origin && corsOptions.origin.includes(origin)) {
+        res.header("Access-Control-Allow-Origin", origin);
+    }
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     if (req.method === "OPTIONS") {
-        res.status(200).end(); // End preflight requests early
+        res.status(200).end();
         return;
     }
     next();
