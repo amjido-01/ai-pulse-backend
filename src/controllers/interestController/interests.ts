@@ -7,7 +7,6 @@ export const interests = async (req: Request, res: Response): Promise<any> => {
     
     try {
         const { interests } = req.body;
-        // console.log(req)
 
         
     if (!Array.isArray(interests) || interests.length === 0) {

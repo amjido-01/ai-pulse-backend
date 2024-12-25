@@ -18,7 +18,6 @@ const interests = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let userData = yield (req === null || req === void 0 ? void 0 : req.user);
     try {
         const { interests } = req.body;
-        // console.log(req)
         if (!Array.isArray(interests) || interests.length === 0) {
             return res.status(400).json({ message: 'Interests must be a non-empty array' });
         }
