@@ -22,10 +22,11 @@ app.use(express_1.default.json()); // Parse incoming JSON requests
 app.use((0, cookie_parser_1.default)()); // Parse cookies
 // Global CORS Headers Middleware
 app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    if (origin && corsOptions.origin.includes(origin)) {
-        res.header("Access-Control-Allow-Origin", origin);
-    }
+    // const origin = req.headers.origin;
+    // if (origin && corsOptions.origin.includes(origin)) {
+    //   res.header("Access-Control-Allow-Origin", origin);
+    // }
+    res.header('Access-Control-Allow-Origin', '*');
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
