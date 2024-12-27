@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const index_1 = __importDefault(require("./routes/index"));
+// app instance
 const app = (0, express_1.default)();
 const port = process.env.PORT || 8080;
 // CORS Configuration 
