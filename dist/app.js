@@ -11,15 +11,15 @@ const app = (0, express_1.default)();
 const port = process.env.PORT || 8080;
 // CORS Configuration 
 const corsOptions = {
-    origin: "https://ai-pulse-frontend.vercel.app", //"http://localhost:3000", Replace with your frontend URL
+    origin: "https://ai-pulse-frontend.vercel.app", // "http://localhost:3000", // Replace with your frontend URL
     credentials: true, // Allow server to accept cookies
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
 };
 // Middleware
-app.use((0, cors_1.default)(corsOptions)); // Enable CORS
-app.use(express_1.default.json()); // Parse incoming JSON requests
-app.use((0, cookie_parser_1.default)()); // Parse cookies
+app.use((0, cors_1.default)(corsOptions));
+app.use(express_1.default.json());
+app.use((0, cookie_parser_1.default)());
 // Global CORS Headers Middleware
 app.use((req, res, next) => {
     const origin = req.headers.origin;

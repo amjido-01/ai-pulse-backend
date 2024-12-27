@@ -8,16 +8,16 @@ const port = process.env.PORT || 8080;
 
 // CORS Configuration 
 const corsOptions = {
-  origin: "https://ai-pulse-frontend.vercel.app",  //"http://localhost:3000", Replace with your frontend URL
+  origin:   "https://ai-pulse-frontend.vercel.app", // "http://localhost:3000", // Replace with your frontend URL
   credentials: true, // Allow server to accept cookies
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 // Middleware
-app.use(cors(corsOptions)); // Enable CORS
-app.use(express.json()); // Parse incoming JSON requests
-app.use(cookieParser()); // Parse cookies
+app.use(cors(corsOptions));
+app.use(express.json()); 
+app.use(cookieParser()); 
 
 
 // Global CORS Headers Middleware

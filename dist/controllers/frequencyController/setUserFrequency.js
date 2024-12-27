@@ -12,25 +12,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.profile = void 0;
+exports.setUserFrequency = void 0;
 const db_1 = __importDefault(require("../../config/db"));
-const profile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const setUserFrequency = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let userData = yield (req === null || req === void 0 ? void 0 : req.user);
-    console.log(userData, "from backend profile");
+    const { frequency } = req.body;
+    if (!frequency) {
+        return res.status(400).json({ message: 'Frequency is required' });
+    }
+    const validFrequencies = ['daily', 'twice-weekly', 'weekly', 'bi-weekly', 'monthly'];
+    if (!validFrequencies.includes(frequency)) {
+        return res.status(400).json({ message: 'Invalid frequency' });
+    }
     try {
-        const user = yield db_1.default.user.findUnique({
-            where: { id: userData.id },
+        const updatedUser = yield db_1.default.user.update({
+            where: { id: userData === null || userData === void 0 ? void 0 : userData.id },
+            data: { frequency: frequency },
+            select: { frequency: true }
         });
-        console.log("hello", user);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        res.json({ user, message: "This is a protected route" });
+        res.json({ frequency: updatedUser.frequency, updatedUser });
     }
     catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error('Error updating notification frequency:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
-exports.profile = profile;
-//# sourceMappingURL=profile.js.map
+exports.setUserFrequency = setUserFrequency;
+//# sourceMappingURL=setUserFrequency.js.map
