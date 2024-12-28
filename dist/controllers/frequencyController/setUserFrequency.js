@@ -25,12 +25,12 @@ const setUserFrequency = (req, res) => __awaiter(void 0, void 0, void 0, functio
         return res.status(400).json({ message: 'Invalid frequency' });
     }
     try {
-        const updatedUser = yield db_1.default.user.update({
+        const user = yield db_1.default.user.update({
             where: { id: userData === null || userData === void 0 ? void 0 : userData.id },
             data: { frequency: frequency },
             select: { frequency: true }
         });
-        res.json({ frequency: updatedUser.frequency, updatedUser });
+        res.json({ frequency: user.frequency, user });
     }
     catch (error) {
         console.error('Error updating notification frequency:', error);

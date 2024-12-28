@@ -7,8 +7,7 @@ export const getUserFrequency = async (req: Request, res: Response): Promise<any
     try {
         const user = await prisma.user.findUnique({
           where: { id: userData?.id },
-          
-          // select: { frequency: true, }
+          select: { frequency: true, }
         });
     
         if (!user) {

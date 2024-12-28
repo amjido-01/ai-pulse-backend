@@ -20,7 +20,7 @@ const getUserFrequency = (req, res) => __awaiter(void 0, void 0, void 0, functio
     try {
         const user = yield db_1.default.user.findUnique({
             where: { id: userData === null || userData === void 0 ? void 0 : userData.id },
-            // select: { frequency: true, }
+            select: { frequency: true, }
         });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
