@@ -10,6 +10,8 @@ import { refreshToken } from "../controllers/userController/refresh-token";
 import { interests } from "../controllers/interestController/interests";
 import { setUserFrequency } from "../controllers/frequencyController/setUserFrequency";
 import { getUserFrequency } from "../controllers/frequencyController/getUserFrequency";
+import { fetchAndSaveAIProducts } from "../controllers/fetchAndSaveAIProductsController/fetchAndSaveAIProducts";
+
 const router = Router();
 
 
@@ -17,6 +19,7 @@ router.post("/register", register)
 router.post("/login", login)
 router.post("/logout", logout)
 router.get("/users", authenticateToken, getUsers)
+router.get("/fetch-ai-products", fetchAndSaveAIProducts)
 router.get("/user/:id", getUser)
 router.post("/frequency", authenticateToken, setUserFrequency)
 router.get("/frequency", authenticateToken, getUserFrequency)

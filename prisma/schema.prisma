@@ -35,3 +35,12 @@ model Interest {
 
   @@unique([userId, interest])
 }
+
+model Aiproducts {
+  id    String @unique
+  name  String
+  tagline String
+  createdAt DateTime
+  website    String
+  url    String
+}
