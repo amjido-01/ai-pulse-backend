@@ -11,7 +11,7 @@ import { interests } from "../controllers/interestController/interests";
 import { setUserFrequency } from "../controllers/frequencyController/setUserFrequency";
 import { getUserFrequency } from "../controllers/frequencyController/getUserFrequency";
 import { fetchAndSaveAIProducts } from "../controllers/fetchAndSaveAIProductsController/fetchAndSaveAIProducts";
-
+import { deleteAllRecords } from "../utils/deleteRec";
 const router = Router();
 
 
@@ -25,6 +25,7 @@ router.post("/frequency", authenticateToken, setUserFrequency)
 router.get("/frequency", authenticateToken, getUserFrequency)
 router.post("/interests", authenticateToken, interests)
 router.post("/refresh-token", refreshToken)
+router.delete("/dl", deleteAllRecords)
 router.get("/profile", authenticateToken, profile)
 
 

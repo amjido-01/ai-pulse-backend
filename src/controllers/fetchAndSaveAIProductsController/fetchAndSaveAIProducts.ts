@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import prisma from "../../config/db";
 import axios from "axios";
+import Groq from "groq-sdk";
+
+
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 
 interface ProductNode {
@@ -22,6 +26,38 @@ interface GraphQLResponse {
   };
 }
 
+
+// Function to determine the category using Llama 3
+async function categorizeProduct(tagline: string): Promise<string> {
+  try {
+    const response = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: `You are an AI assistant acting as a professional text analyzer and you will be giving a tagline of an ai software. Your job is to analyze the following tagline: "${tagline}" and determine the most appropriate category the software belongs to based on the key word from the tagline. Respond with a single word that represents the category. Avoid generic responses like 'others'.`,
+        },
+      ],
+      model: "llama-3.3-70b-versatile",
+    });
+
+    return response.choices[0]?.message?.content?.trim() || "uncategorized";
+  } catch (error) {
+    console.error("Error categorizing product tagline:", error);
+    return "uncategorized"; // Default category if the API fails
+  }
+}
+
+
+
+const test = async () => {
+  console.log(await categorizeProduct("The only blockchain calculator you'll ever need"), "hello")
+}
+
+test()
+
+
+
+
 export const fetchAndSaveAIProducts = async (req: Request, res: Response): Promise<void> => {
   try {
     const accessToken = 'xbWxiCV0mYGrPASEFaxQRLhgYeqIK-Sbpf0dqrAwWNw';
@@ -29,9 +65,15 @@ export const fetchAndSaveAIProducts = async (req: Request, res: Response): Promi
       throw new Error("Missing Product Hunt Access Token.");
     }
 
+  const todayStart = new Date();
+todayStart.setHours(0, 0, 0, 0); // Set time to 00:00:00.000
+const isoString = todayStart.toISOString();
+console.log(isoString, "kkkkkk");
+
+//first: 100, postedAfter: "${startOfDayUTC}"
     const query = `
   {
-    posts(first: 100) {
+    posts(postedAfter: "${isoString}") {
       edges {
         node {
           id
@@ -55,6 +97,7 @@ const response = await axios.post<GraphQLResponse>('https://api.producthunt.com/
 });
 
   const products = response.data.data.posts.edges;
+  console.log(products, "prod")
   const keywords = ["ai", "machine learning", "artificial intelligence"]
 
   const aiProducts = products.filter((post) => {
@@ -63,6 +106,8 @@ const response = await axios.post<GraphQLResponse>('https://api.producthunt.com/
 
     return keywords.some((keyword) => name.includes(keyword) || tagline.includes(keyword));
   });
+
+  console.log(aiProducts, "ai prod")
 
  // Save Filtered Products to Database
     const savedProducts = await Promise.all(
@@ -74,6 +119,10 @@ const response = await axios.post<GraphQLResponse>('https://api.producthunt.com/
         // mark category
 
         if (!existingProduct) {
+
+          const category = await categorizeProduct(product.node.tagline);
+          console.log(category, "cat")
+
           return await prisma.aiproducts.create({
             data: {
               id: product.node.id,
@@ -81,7 +130,8 @@ const response = await axios.post<GraphQLResponse>('https://api.producthunt.com/
               tagline: product.node.tagline,
               createdAt: new Date(product.node.createdAt), // Ensure snake_case for Prisma schema
               url: product.node.url,
-              website: product.node.website
+              website: product.node.website,
+              category
             },
           });
         }
