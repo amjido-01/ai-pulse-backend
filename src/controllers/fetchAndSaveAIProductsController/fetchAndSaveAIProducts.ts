@@ -8,7 +8,7 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 
 interface ProductNode {
-  id: string;
+  id: string
   name: string;
   tagline: string;
   createdAt: string;
@@ -25,6 +25,8 @@ interface GraphQLResponse {
     };
   };
 }
+
+
 
 
 // Function to determine the category using Llama 3
@@ -48,14 +50,42 @@ async function categorizeProduct(tagline: string): Promise<string> {
 }
 
 
+async function notifyUsersForNewProduct(productId: string, category: string): Promise<void> {
+  try {
+    console.log("am in")
+    // Find users with matching interests
+    const interestedUsers = await prisma.user.findMany({
+      where: {
+        AND: [
+          { registeredAt: { lte: new Date() } }, // Only notify users registered before or at product creation
+          {
+            interest: {
+              some: {
+                interest: category, // Match user interests
+              },
+            },
+          },
+        ],
+      },
+    });
 
-const test = async () => {
-  console.log(await categorizeProduct("The only blockchain calculator you'll ever need"), "hello")
+    // Create notifications for matching users
+    const notifications = interestedUsers.map((user) => ({
+      userId: user.id,
+      productId: productId,
+      notificationTime: new Date(),
+    }));
+
+    console.log("yes am in")
+
+    if (notifications.length > 0) {
+      await prisma.userNotifications.createMany({ data: notifications });
+      console.log(`Notifications created for ${notifications.length} users for product ID: ${productId}`);
+    }
+  } catch (error) {
+    console.error("Error notifying users:", error);
+  }
 }
-
-test()
-
-
 
 
 export const fetchAndSaveAIProducts = async (req: Request, res: Response): Promise<void> => {
@@ -66,9 +96,8 @@ export const fetchAndSaveAIProducts = async (req: Request, res: Response): Promi
     }
 
   const todayStart = new Date();
-todayStart.setHours(0, 0, 0, 0); // Set time to 00:00:00.000
-const isoString = todayStart.toISOString();
-console.log(isoString, "kkkkkk");
+  todayStart.setHours(0, 0, 0, 0); // Set time to 00:00:00.000
+  const isoString = todayStart.toISOString();
 
 //first: 100, postedAfter: "${startOfDayUTC}"
     const query = `
@@ -119,11 +148,10 @@ const response = await axios.post<GraphQLResponse>('https://api.producthunt.com/
         // mark category
 
         if (!existingProduct) {
-
           const category = await categorizeProduct(product.node.tagline);
           console.log(category, "cat")
 
-          return await prisma.aiproducts.create({
+          const newProduct =  await prisma.aiproducts.create({
             data: {
               id: product.node.id,
               name: product.node.name,
@@ -134,19 +162,42 @@ const response = await axios.post<GraphQLResponse>('https://api.producthunt.com/
               category
             },
           });
+
+           // Notify users for the new product
+           await notifyUsersForNewProduct(newProduct.id, category);
+
+           return newProduct;
+
         }
         return null;
       })
     );
 
-    // Filter out null results (already existing products)
-    const newProducts = savedProducts.filter((product) => product !== null);
+    // const mockProduct = await prisma.aiproducts.create({
+    //   data: {
+    //     name: "Test AI Product",
+    //     tagline: "This is a test product two",
+    //     createdAt: new Date(),
+    //     website: "https://test-products.com",
+    //     url: "https://test-products.com",
+    //     category: "Data Science"
+    //   },
+    // });
+    
+   
+    // console.log("Mock product created:", mockProduct);
 
-    // Respond with Saved Products
+    // Notify users for the mock product
+    // await notifyUsersForNewProduct(mockProduct.id, mockProduct.category);
+
+    // Clean up mock product
+    // await prisma.aiproducts.delete({ where: { id: mockProduct.id } });
+    // console.log("Mock product deleted after testing.");
+
     res.status(200).json({
       message: "AI products fetched and saved successfully.",
-      savedCount: newProducts.length,
-      savedProducts: newProducts,
+      savedCount: savedProducts.length,
+      savedProducts: savedProducts,
     });
 
   } catch (error) {

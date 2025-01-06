@@ -15,7 +15,10 @@ export const login = async (req: Request, res: Response): Promise<any> => {
 
         // Find the user by email
         const existingUser = await prisma.user.findUnique({
-            where: { email }
+            where: { email },
+            include: {
+                interest: true
+            }
         });
 
         // Check if the user exists
@@ -44,7 +47,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
         console.log(refreshToken, "from login")
         await prisma.user.update({
             where: {id: existingUser.id},
-            data: {refreshToken: refreshToken}
+            data: {refreshToken: refreshToken},
         })
 
        res.cookie('refreshToken', refreshToken, {

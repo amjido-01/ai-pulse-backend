@@ -6,11 +6,13 @@
 
 generator client {
   provider = "prisma-client-js"
+
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+    url       = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL")
 }
 
 
@@ -24,6 +26,8 @@ model User {
   updatedAt DateTime @updatedAt
   refreshToken String?
   interest Interest[]
+  notifications UserNotifications[]
+  registeredAt   DateTime           @default(now())
 }
 
 
@@ -44,4 +48,21 @@ model Aiproducts {
   website    String
   url    String
    category  String @default("uncategorized")
+   notifications UserNotifications[]
+}
+
+model UserNotifications {
+   id               Int              @id @default(autoincrement())
+  userId           String           // Foreign key to User table
+  productId        String           // Foreign key to Aiproducts table
+  notifiedAt       DateTime?        // Null if notification has not been sent
+  notificationTime DateTime         // Scheduled time to notify the user
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  // Relations
+  User             User             @relation(fields: [userId], references: [id])
+  Product          Aiproducts       @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId]) // Ensure a user is notified about a product only once
 }
