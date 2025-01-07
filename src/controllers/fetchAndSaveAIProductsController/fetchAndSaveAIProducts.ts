@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
 import prisma from "../../config/db";
 import axios from "axios";
-import Groq from "groq-sdk";
+import { categorizeProduct } from "../../api/categorizeProduct";
+import cron from "node-cron"
 
-
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 
 interface ProductNode {
@@ -24,29 +23,6 @@ interface GraphQLResponse {
       }[];
     };
   };
-}
-
-
-
-
-// Function to determine the category using Llama 3
-async function categorizeProduct(tagline: string): Promise<string> {
-  try {
-    const response = await groq.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: `You are an AI assistant acting as a professional text analyzer and you will be giving a tagline of an ai software. Your job is to analyze the following tagline: "${tagline}" and determine the most appropriate category the software belongs to based on the key word from the tagline. Respond with a single word that represents the category. Avoid generic responses like 'others'.`,
-        },
-      ],
-      model: "llama-3.3-70b-versatile",
-    });
-
-    return response.choices[0]?.message?.content?.trim() || "uncategorized";
-  } catch (error) {
-    console.error("Error categorizing product tagline:", error);
-    return "uncategorized"; // Default category if the API fails
-  }
 }
 
 
@@ -88,6 +64,57 @@ async function notifyUsersForNewProduct(productId: string, category: string): Pr
 }
 
 
+
+cron.schedule('0 9 * * *', async () => {
+  console.log("Running daily notifications task...");
+  await sendScheduledNotifications("daily");
+});
+
+
+cron.schedule("0 9 * * 1", async () => {
+  console.log("Running weekly notifications task...");
+  await sendScheduledNotifications("weekly");
+});
+
+cron.schedule("0 9 1 * *", async () => {
+  console.log("Running monthly notifications task...");
+  await sendScheduledNotifications("monthly");
+});
+
+
+async function sendScheduledNotifications(frequency: string): Promise<void> {
+  try {
+    const notifications = await prisma.userNotifications.findMany({
+      where: {
+        sent: false, // Only unsent notifications
+        user: {
+          frequency: frequency
+        }
+      },
+      include: {
+        product: true, // Include related product information
+        user: true, // Include related user information
+      },
+    });
+    
+
+    for (const notification of notifications) {
+      const user = notification.user;
+      const product = notification.product;
+
+      console.log(`Sending ${frequency} notification to ${user.email} for product: ${product.name}`);
+      // Here, you would integrate with an email or notification service
+      await prisma.userNotifications.update({
+        where: { id: notification.id },
+        data: { sent: true }, // Mark notification as sent
+      });
+    }
+  } catch (error) {
+    console.error(`Error sending ${frequency} notifications:`, error);
+  }
+}
+
+
 export const fetchAndSaveAIProducts = async (req: Request, res: Response): Promise<void> => {
   try {
     const accessToken = 'xbWxiCV0mYGrPASEFaxQRLhgYeqIK-Sbpf0dqrAwWNw';
@@ -116,6 +143,7 @@ export const fetchAndSaveAIProducts = async (req: Request, res: Response): Promi
     }
   }
 `;
+
 
 const response = await axios.post<GraphQLResponse>('https://api.producthunt.com/v2/api/graphql', {
   query: query

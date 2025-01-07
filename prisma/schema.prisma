@@ -52,17 +52,19 @@ model Aiproducts {
 }
 
 model UserNotifications {
-   id               Int              @id @default(autoincrement())
+  id               Int              @id @default(autoincrement())
   userId           String           // Foreign key to User table
   productId        String           // Foreign key to Aiproducts table
   notifiedAt       DateTime?        // Null if notification has not been sent
   notificationTime DateTime         // Scheduled time to notify the user
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
+  sent           Boolean  @default(false) // Add this line
 
   // Relations
-  User             User             @relation(fields: [userId], references: [id])
-  Product          Aiproducts       @relation(fields: [productId], references: [id])
+  user             User             @relation(fields: [userId], references: [id])
+  product          Aiproducts       @relation(fields: [productId], references: [id])
 
   @@unique([userId, productId]) // Ensure a user is notified about a product only once
 }
+  
