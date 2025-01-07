@@ -65,7 +65,7 @@ async function notifyUsersForNewProduct(productId: string, category: string): Pr
 
 
 
-cron.schedule('0 9 * * *', async () => {
+cron.schedule('* * * * *', async () => {
   console.log("Running daily notifications task...");
   await sendScheduledNotifications("daily");
 });
