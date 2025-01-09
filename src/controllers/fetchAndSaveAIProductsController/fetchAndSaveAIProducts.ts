@@ -26,7 +26,7 @@ interface GraphQLResponse {
 }
 
 
-async function notifyUsersForNewProduct(productId: string, category: string): Promise<void> {
+async function notifyUsersForNewProduct(productId: string, name: string,  category: string): Promise<void> {
   try {
     console.log("am in")
     // Find users with matching interests
@@ -56,12 +56,36 @@ async function notifyUsersForNewProduct(productId: string, category: string): Pr
 
     if (notifications.length > 0) {
       await prisma.userNotifications.createMany({ data: notifications });
-      console.log(`Notifications created for ${notifications.length} users for product ID: ${productId}`);
+      console.log(`Notifications created for ${notifications.length} users for product ID: ${productId}, ${name}`);
     }
   } catch (error) {
     console.error("Error notifying users:", error);
   }
 }
+
+
+async function findUsersBasedOnFrequency(frequency: string) {
+ try {
+  const users = await prisma.user.findMany({
+    where: {
+      frequency: frequency,
+      notifications: {
+        some: {
+          sent: false
+        }
+      }
+    },
+    include: {
+      notifications: true
+    }
+  })
+  console.log(users, "user with frequency")
+ } catch (error) {
+  console.log(error)
+ }
+
+}
+
 
 
 
@@ -80,6 +104,7 @@ cron.schedule("0 9 1 * *", async () => {
   console.log("Running monthly notifications task...");
   await sendScheduledNotifications("monthly");
 });
+
 
 
 async function sendScheduledNotifications(frequency: string): Promise<void> {
@@ -192,7 +217,7 @@ const response = await axios.post<GraphQLResponse>('https://api.producthunt.com/
           });
 
            // Notify users for the new product
-           await notifyUsersForNewProduct(newProduct.id, category);
+           await notifyUsersForNewProduct(newProduct.id, newProduct.name, category);
 
            return newProduct;
 
@@ -200,6 +225,9 @@ const response = await axios.post<GraphQLResponse>('https://api.producthunt.com/
         return null;
       })
     );
+
+  findUsersBasedOnFrequency("daily")
+
 
     // const mockProduct = await prisma.aiproducts.create({
     //   data: {
