@@ -55,6 +55,7 @@ model UserNotifications {
   id               Int              @id @default(autoincrement())
   userId           String           // Foreign key to User table
   productId        String           // Foreign key to Aiproducts table
+  productName       String
   notifiedAt       DateTime?        // Null if notification has not been sent
   notificationTime DateTime         // Scheduled time to notify the user
   createdAt        DateTime         @default(now())
