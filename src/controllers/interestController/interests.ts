@@ -27,8 +27,17 @@ export const interests = async (req: Request, res: Response): Promise<any> => {
           interest,
         })),
       });
-  
-      res.status(201).json({ message: 'Interests saved successfully', count: interest.count, responseBody: interests });
+
+      const getAllUserInterest = await prisma.user.findUnique({
+        where: {id: userId},
+        include: {
+          interest: true
+        }
+      })
+
+      console.log(interests,  "all")
+      console.log(getAllUserInterest, "oooo")
+      res.status(201).json({ message: 'Interests saved successfully', count: interest.count, responseBody: getAllUserInterest });
 
     } catch (error) {
         console.error('Error saving interests:', error);
