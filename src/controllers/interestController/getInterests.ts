@@ -1,10 +1,8 @@
 import { Response, Request } from "express";
 import prisma from "../../config/db";
-import { interests } from "./interests";
 
 export const getUserIntersts = async (req: Request, res: Response): Promise<any> => {
     let userData = await (req as any)?.user
-    console.log("hello  from frequency")
     try {
         const user = await prisma.user.findUnique({
           where: { id: userData?.id },
@@ -16,7 +14,6 @@ export const getUserIntersts = async (req: Request, res: Response): Promise<any>
         }
     
         res.json({ interest: user.interest, user });
-        console.log(user.interest, "get me")
       } catch (error) {
         console.error('Error fetching user intersts:', error);
         res.status(500).json({ message: 'Internal server error' });

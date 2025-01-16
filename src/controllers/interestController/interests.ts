@@ -35,8 +35,6 @@ export const interests = async (req: Request, res: Response): Promise<any> => {
         }
       })
 
-      console.log(interests,  "all")
-      console.log(getAllUserInterest, "oooo")
       res.status(201).json({ message: 'Interests saved successfully', count: interest.count, responseBody: getAllUserInterest });
 
     } catch (error) {
