@@ -43,6 +43,7 @@ const transporter = nodemailer.createTransport({
 });
 
 
+// send mail
 async function sendEmail(to: string, subject: string, body: string): Promise<void> {
   try {
     await transporter.sendMail({
@@ -57,6 +58,7 @@ async function sendEmail(to: string, subject: string, body: string): Promise<voi
   }
 }
 
+// creating notification
 async function notifyUsersForNewProduct(productId: string, name: string, category: string, website: string): Promise<void> {
   try {
     const interestedUsers = await prisma.user.findMany({
@@ -91,6 +93,7 @@ async function notifyUsersForNewProduct(productId: string, name: string, categor
   }
 }
 
+// sending notification
 async function sendNotificationsToUsers(users: any[]): Promise<void> {
   try {
     for (const user of users) {
@@ -138,6 +141,7 @@ async function sendNotificationsToUsers(users: any[]): Promise<void> {
   }
 }
 
+// finding user based on frequency
 async function findUsersBasedOnFrequency(frequency: string) {
   try {
     const users = await prisma.user.findMany({
@@ -160,6 +164,7 @@ async function findUsersBasedOnFrequency(frequency: string) {
   }
 }
 
+// fetching product
 export const fetchAndSaveAIProducts = async (req: Request, res: Response): Promise<void> => {
   try {
     const accessToken = process.env.PRODUCT_HUNT_ACCESS_TOKEN;
