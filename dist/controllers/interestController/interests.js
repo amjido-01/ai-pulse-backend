@@ -34,7 +34,13 @@ const interests = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 interest,
             })),
         });
-        res.status(201).json({ message: 'Interests saved successfully', count: interest.count, responseBody: interests });
+        const getAllUserInterest = yield db_1.default.user.findUnique({
+            where: { id: userId },
+            include: {
+                interest: true
+            }
+        });
+        res.status(201).json({ message: 'Interests saved successfully', count: interest.count, responseBody: getAllUserInterest });
     }
     catch (error) {
         console.error('Error saving interests:', error);

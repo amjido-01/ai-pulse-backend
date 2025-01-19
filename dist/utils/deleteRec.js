@@ -12,28 +12,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.profile = void 0;
-const db_1 = __importDefault(require("../../config/db"));
-const profile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let userData = yield (req === null || req === void 0 ? void 0 : req.user);
-    console.log(userData, "from backend profile");
-    try {
-        const user = yield db_1.default.user.findUnique({
-            where: { id: userData.id },
-            include: {
-                interest: true
-            }
-        });
-        console.log("hello", user);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+exports.deleteAllRecords = deleteAllRecords;
+const db_1 = __importDefault(require("../config/db")); // Ensure you import your Prisma client
+function deleteAllRecords() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            // Delete all records from the "Aiproducts" table
+            const deletedRecords = yield db_1.default.aiproducts.deleteMany({});
+            console.log(`Deleted ${deletedRecords.count} records from the Aiproducts table.`);
         }
-        res.json({ user, message: "This is a protected route" });
-    }
-    catch (error) {
-        console.error('Error fetching user data:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-});
-exports.profile = profile;
-//# sourceMappingURL=profile.js.map
+        catch (error) {
+            console.error("Error deleting records:", error);
+        }
+        finally {
+            yield db_1.default.$disconnect(); // Close the database connection
+        }
+    });
+}
+//# sourceMappingURL=deleteRec.js.map

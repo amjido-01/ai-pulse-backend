@@ -26,7 +26,10 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         // Find the user by email
         const existingUser = yield db_1.default.user.findUnique({
-            where: { email }
+            where: { email },
+            include: {
+                interest: true
+            }
         });
         // Check if the user exists
         if (!existingUser) {
@@ -50,7 +53,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         console.log(refreshToken, "from login");
         yield db_1.default.user.update({
             where: { id: existingUser.id },
-            data: { refreshToken: refreshToken }
+            data: { refreshToken: refreshToken },
         });
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
