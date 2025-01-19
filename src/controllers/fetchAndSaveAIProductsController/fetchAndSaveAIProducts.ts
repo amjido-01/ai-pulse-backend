@@ -153,7 +153,7 @@ async function findUsersBasedOnFrequency(frequency: string) {
       },
       include: {
         notifications: {
-          where: { sent: false },
+          where: {sent: false},
         },
       },
     });
@@ -169,21 +169,21 @@ export const fetchAndSaveAIProducts = async (req: Request, res: Response): Promi
   try {
     const accessToken = process.env.PRODUCT_HUNT_ACCESS_TOKEN;
 
-    // const todayStart = new Date();
-    // todayStart.setHours(0, 0, 0, 0);
-    // const isoString = todayStart.toISOString();
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const isoString = todayStart.toISOString();
     
-    const yesterdayStart = new Date();
-    yesterdayStart.setDate(yesterdayStart.getDate() - 1); // Subtract one day
-    yesterdayStart.setHours(0, 0, 0, 0); // Set to the start of the day
-    const isoStringYesterday = yesterdayStart.toISOString();
+    // const yesterdayStart = new Date();
+    // yesterdayStart.setDate(yesterdayStart.getDate() - 1); // Subtract one day
+    // yesterdayStart.setHours(0, 0, 0, 0); // Set to the start of the day
+    // const isoStringYesterday = yesterdayStart.toISOString();
 
-    console.log(isoStringYesterday);
+    // console.log(isoStringYesterday);
 
 
     const query = `
       {
-        posts(postedAfter: "${isoStringYesterday}") {
+        posts(postedAfter: "${isoString}") {
           edges {
             node {
               id
