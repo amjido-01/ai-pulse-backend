@@ -56,6 +56,7 @@ model UserNotifications {
   userId           String           // Foreign key to User table
   productId        String           // Foreign key to Aiproducts table
   productName       String
+  website           String
   notifiedAt       DateTime?        // Null if notification has not been sent
   notificationTime DateTime         // Scheduled time to notify the user
   createdAt        DateTime         @default(now())

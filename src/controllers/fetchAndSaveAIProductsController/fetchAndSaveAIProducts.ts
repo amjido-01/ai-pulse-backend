@@ -57,7 +57,7 @@ async function sendEmail(to: string, subject: string, body: string): Promise<voi
   }
 }
 
-async function notifyUsersForNewProduct(productId: string, name: string, category: string): Promise<void> {
+async function notifyUsersForNewProduct(productId: string, name: string, category: string, website: string): Promise<void> {
   try {
     const interestedUsers = await prisma.user.findMany({
       where: {
@@ -78,6 +78,7 @@ async function notifyUsersForNewProduct(productId: string, name: string, categor
       userId: user.id,
       productName: name,
       productId,
+      website,
       notificationTime: new Date(),
     }));
 
@@ -163,13 +164,21 @@ export const fetchAndSaveAIProducts = async (req: Request, res: Response): Promi
   try {
     const accessToken = process.env.PRODUCT_HUNT_ACCESS_TOKEN;
 
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const isoString = todayStart.toISOString();
+    // const todayStart = new Date();
+    // todayStart.setHours(0, 0, 0, 0);
+    // const isoString = todayStart.toISOString();
+    
+    const yesterdayStart = new Date();
+    yesterdayStart.setDate(yesterdayStart.getDate() - 1); // Subtract one day
+    yesterdayStart.setHours(0, 0, 0, 0); // Set to the start of the day
+    const isoStringYesterday = yesterdayStart.toISOString();
+
+    console.log(isoStringYesterday);
+
 
     const query = `
       {
-        posts(postedAfter: "${isoString}") {
+        posts(postedAfter: "${isoStringYesterday}") {
           edges {
             node {
               id
@@ -221,7 +230,7 @@ export const fetchAndSaveAIProducts = async (req: Request, res: Response): Promi
             },
           });
 
-          await notifyUsersForNewProduct(newProduct.id, newProduct.name, category);
+          await notifyUsersForNewProduct(newProduct.id, newProduct.name, newProduct.website, category);
           return newProduct;
         }
 
