@@ -228,15 +228,13 @@ await sendEmail(user.email, "Your Latest AI Product Updates", emailBody);
 }
 
 // CRON Jobs
-// cron.schedule("* * * * * ",async() => {
-//   await fetchAndSaveAIProducts();
-// });// Fetch products twice a day
-//cron.schedule("* * * * *", () => sendNotificationsBasedOnFrequency("daily")
-//); // Daily notifications
-sendNotificationsBasedOnFrequency("daily")
+cron.schedule("0 8,16 * * *",async() => {
+  await fetchAndSaveAIProducts();
+});// Fetch products twice a day
+
+cron.schedule("0 22 * * *", () => sendNotificationsBasedOnFrequency("daily")); // Daily notifications
 cron.schedule("0 22 * * 0", () => sendNotificationsBasedOnFrequency("weekly")); // Weekly notifications (Sunday)
 cron.schedule("0 22 1 * *", () => sendNotificationsBasedOnFrequency("monthly")); // Monthly notifications (1st day)
-
 
 
 // // Fetch AI products twice a day
