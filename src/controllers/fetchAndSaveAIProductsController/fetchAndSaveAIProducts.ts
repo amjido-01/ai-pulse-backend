@@ -1,10 +1,9 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import prisma from "../../config/db";
 import axios from "axios";
 import { categorizeProduct } from "../../api/categorizeProduct";
 import cron from "node-cron";
 import nodemailer from "nodemailer";
-
 
 interface ProductNode {
   id: string;
@@ -25,25 +24,16 @@ interface GraphQLResponse {
   };
 }
 
-interface Notification {
-  id: number;
-  productId: string;
-  userId: string;
-  notificationTime: Date;
-  sent: boolean;
-}
-
 // Nodemailer transporter configuration
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.EMAIL, // Your email
-    pass: process.env.EMAIL_PASSWORD, // Your email password or app password
+    user: process.env.EMAIL,
+    pass: process.env.EMAIL_PASSWORD,
   },
 });
 
-
-// send mail
+// Send email function
 async function sendEmail(to: string, subject: string, body: string): Promise<void> {
   try {
     await transporter.sendMail({
@@ -58,21 +48,12 @@ async function sendEmail(to: string, subject: string, body: string): Promise<voi
   }
 }
 
-// creating notification
+// Notify users based on interest
 async function notifyUsersForNewProduct(productId: string, name: string, category: string, website: string): Promise<void> {
   try {
     const interestedUsers = await prisma.user.findMany({
       where: {
-        AND: [
-          { registeredAt: { lte: new Date() } },
-          {
-            interest: {
-              some: {
-                interest: category,
-              },
-            },
-          },
-        ],
+        interest: { some: { interest: category } },
       },
     });
 
@@ -93,93 +74,14 @@ async function notifyUsersForNewProduct(productId: string, name: string, categor
   }
 }
 
-// sending notification
-async function sendNotificationsToUsers(users: any[]): Promise<void> {
-  try {
-    for (const user of users) {
-      const emailContent = await Promise.all(
-        user.notifications.map(async (notification: Notification) => {
-          const product = await prisma.aiproducts.findUnique({
-            where: { id: notification.productId },
-          });
-
-          if (product) {
-            await prisma.userNotifications.update({
-              where: { id: notification.id },
-              data: { sent: true },
-            });
-
-            return `
-              Product Name: ${product.name}
-              Website: ${product.website}
-              Description: ${product.tagline}
-              Learn more: ${product.url}
-            `;
-          }
-
-          return null;
-        })
-      );
-
-      const emailBody = `
-        Hello ${user.name},
-
-        Here are the latest AI products that match your interests:
-
-        ${emailContent.filter(Boolean).join("\n\n")}
-
-        Best regards,
-        Your AI Notification App Team
-      `;
-
-      await sendEmail(user.email, "Your Latest AI Product Updates", emailBody);
-      console.log(`Email sent to ${user.email}:\n${emailBody}`);
-      // Add email sending logic here (e.g., using Nodemailer or a third-party service).
-    }
-  } catch (error) {
-    console.error("Error sending notifications:", error);
-  }
-}
-
-// finding user based on frequency
-async function findUsersBasedOnFrequency(frequency: string) {
-  try {
-    const users = await prisma.user.findMany({
-      where: {
-        frequency,
-        notifications: {
-          some: { sent: false },
-        },
-      },
-      include: {
-        notifications: {
-          where: {sent: false},
-        },
-      },
-    });
-
-    await sendNotificationsToUsers(users);
-  } catch (error) {
-    console.error(`Error finding users for frequency "${frequency}":`, error);
-  }
-}
-
-// fetching product
-export const fetchAndSaveAIProducts = async (req: Request, res: Response): Promise<void> => {
+// Fetch and save AI products
+export const fetchAndSaveAIProducts = async (res?: Response): Promise<void> => {
   try {
     const accessToken = process.env.PRODUCT_HUNT_ACCESS_TOKEN;
 
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const isoString = todayStart.toISOString();
-    
-    // const yesterdayStart = new Date();
-    // yesterdayStart.setDate(yesterdayStart.getDate() - 1); // Subtract one day
-    // yesterdayStart.setHours(0, 0, 0, 0); // Set to the start of the day
-    // const isoStringYesterday = yesterdayStart.toISOString();
-
-    // console.log(isoStringYesterday);
-
 
     const query = `
       {
@@ -198,14 +100,13 @@ export const fetchAndSaveAIProducts = async (req: Request, res: Response): Promi
       }
     `;
 
-    const response = await axios.post<GraphQLResponse>("https://api.producthunt.com/v2/api/graphql", {
-      query,
-    }, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+    const response = await axios.post<GraphQLResponse>(
+      "https://api.producthunt.com/v2/api/graphql",
+      { query },
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
 
     const products = response.data.data.posts.edges;
-    console.log(products)
     const keywords = ["ai", "machine learning", "artificial intelligence"];
 
     const aiProducts = products.filter((post) => {
@@ -213,6 +114,8 @@ export const fetchAndSaveAIProducts = async (req: Request, res: Response): Promi
       const tagline = post.node.tagline.toLowerCase();
       return keywords.some((keyword) => name.includes(keyword) || tagline.includes(keyword));
     });
+
+    console.log(aiProducts, "prod")
 
     const savedProducts = await Promise.all(
       aiProducts.map(async (product) => {
@@ -235,7 +138,7 @@ export const fetchAndSaveAIProducts = async (req: Request, res: Response): Promi
             },
           });
 
-          await notifyUsersForNewProduct(newProduct.id, newProduct.name, newProduct.website, category);
+          await notifyUsersForNewProduct(newProduct.id, newProduct.name, category, newProduct.website);
           return newProduct;
         }
 
@@ -243,28 +146,128 @@ export const fetchAndSaveAIProducts = async (req: Request, res: Response): Promi
       })
     );
 
-    res.status(200).json({
+    res?.status(200).json({
       message: "AI products fetched and saved successfully.",
       savedCount: savedProducts.filter(Boolean).length,
       savedProducts,
     });
   } catch (error) {
     console.error("Error fetching or saving AI products:", error);
-    res.status(500).json({ error: "Failed to fetch or save AI products." });
+    res?.status(500).json({ error: "Failed to fetch or save AI products." });
   }
 };
 
-cron.schedule("* * * * *", async () => {
-  console.log("Running daily notifications task...");
-  await findUsersBasedOnFrequency("daily");
-});
+// Send notifications
+async function sendNotificationsBasedOnFrequency(frequency: string): Promise<void> {
+  try {
+    const now = new Date();
+    const today = now.getDate();
+    const dayOfWeek = now.getDay();
 
-cron.schedule("0 9 * * 1", async () => {
-  console.log("Running weekly notifications task...");
-  await findUsersBasedOnFrequency("weekly");
-});
+    const users = await prisma.user.findMany({
+      where: {
+        frequency,
+        ...(frequency === "weekly" && {
+          registeredAt: {
+            gte: new Date(now.setDate(now.getDate() - dayOfWeek)), // Start of the week
+            lte: new Date(now.setDate(now.getDate() - dayOfWeek + 6)), // End of the week
+          },
+        }),
+        ...(frequency === "monthly" && {
+          registeredAt: {
+            gte: new Date(now.getFullYear(), now.getMonth(), 1), // Start of the month
+            lte: new Date(now.getFullYear(), now.getMonth() + 1, 0), // End of the month
+          },
+        }),
+      },
+      include: {
+        notifications: { where: { sent: false },
+        include: {
+          product: true
+        }
+      },
+      },
+    });
 
-cron.schedule("0 9 1 * *", async () => {
-  console.log("Running monthly notifications task...");
-  await findUsersBasedOnFrequency("monthly");
-});
+    for (const user of users) {
+      console.log(user.notifications)
+      const emailBody = `
+Hello ${user.name},
+
+Here are the latest AI products that match your interests:
+
+${user.notifications
+  .map(
+    (notification) => `
+Product Name: ${notification.productName}
+Website: ${notification.website}
+Description: ${notification.product.tagline || "No description available."}
+Learn more: ${notification.product.url || "No link available."}
+`
+  )
+  .join("\n")}
+
+Best regards,  
+Your AI Notification App Team
+`;
+
+// Function to send the email
+await sendEmail(user.email, "Your Latest AI Product Updates", emailBody);
+
+
+      await prisma.userNotifications.updateMany({
+        where: { userId: user.id, sent: false },
+        data: { sent: true },
+      });
+
+      console.log(`Notifications sent to ${user.email}, ${emailBody}`);
+    }
+  } catch (error) {
+    console.error(`Error sending notifications for ${frequency}:`, error);
+  }
+}
+
+// CRON Jobs
+// cron.schedule("* * * * * ",async() => {
+//   await fetchAndSaveAIProducts();
+// });// Fetch products twice a day
+//cron.schedule("* * * * *", () => sendNotificationsBasedOnFrequency("daily")
+//); // Daily notifications
+sendNotificationsBasedOnFrequency("daily")
+cron.schedule("0 22 * * 0", () => sendNotificationsBasedOnFrequency("weekly")); // Weekly notifications (Sunday)
+cron.schedule("0 22 1 * *", () => sendNotificationsBasedOnFrequency("monthly")); // Monthly notifications (1st day)
+
+
+
+// // Fetch AI products twice a day
+// cron.schedule("0 8,16 * * *", async () => {
+//   console.log("Fetching AI products...");
+//   fetchAndSaveAIProducts;
+// });
+
+// // Send daily notifications at 10:00 PM
+// cron.schedule("0 22 * * *", async () => {
+//   console.log("Sending daily notifications...");
+//   const dailyUsers = await findUsersBasedOnFrequency("daily");
+//   await sendNotificationsToUsers(dailyUsers);
+// });
+
+// // Send weekly notifications every day at 10:00 PM
+// cron.schedule("0 22 * * *", async () => {
+//   console.log("Sending weekly notifications...");
+//   const dayOfWeek = new Date().getDay();
+//   const weeklyUsers = await prisma.user.findMany({
+//     where: { frequency: "weekly", registeredDay: dayOfWeek },
+//   });
+//   await sendNotificationsToUsers(weeklyUsers);
+// });
+
+// // Send monthly notifications every day at 10:00 PM
+// cron.schedule("0 22 * * *", async () => {
+//   console.log("Sending monthly notifications...");
+//   const today = new Date().getDate();
+//   const monthlyUsers = await prisma.user.findMany({
+//     where: { frequency: "monthly", registeredDay: today },
+//   });
+//   await sendNotificationsToUsers(monthlyUsers);
+// });
