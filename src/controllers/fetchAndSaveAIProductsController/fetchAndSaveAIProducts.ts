@@ -241,7 +241,7 @@ cron.schedule("0 9,19 * * *", async () => {
 });
 
 
-cron.schedule("0 11 * * *", () => sendNotificationsBasedOnFrequency("daily")); // Daily notifications
+cron.schedule("0 20 * * *", () => sendNotificationsBasedOnFrequency("daily")); // Daily notifications
 cron.schedule("0 20 * * 0", () => sendNotificationsBasedOnFrequency("weekly")); // Weekly notifications (Sunday)
 cron.schedule("0 20 1 * *", () => sendNotificationsBasedOnFrequency("monthly")); // Monthly notifications (1st day)
 
