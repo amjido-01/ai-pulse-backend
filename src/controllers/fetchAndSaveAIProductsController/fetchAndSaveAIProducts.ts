@@ -228,9 +228,20 @@ await sendEmail(user.email, "Your Latest AI Product Updates", emailBody);
 }
 
 // CRON Jobs
-cron.schedule("0 8,16 * * *",async() => {
+//cron.schedule("0 8,16 * * *",async() => {
+  //await fetchAndSaveAIProducts();
+//});// Fetch products twice a day
+// CRON Jobs
+cron.schedule("0 9,19 * * *",async() => {
   await fetchAndSaveAIProducts();
-});// Fetch products twice a day
+});
+
+cron.schedule("0 9,19 * * *", async () => {
+  sendEmail("youndsadeeq10@gmail.com", "Your Latest AI Product Updates", "ye its time");
+});
+
+
+cron.schedule('2 10 * * *', () => { console.log("RUNNRS of Command running Nigerians!20200") })
 
 cron.schedule("0 22 * * *", () => sendNotificationsBasedOnFrequency("daily")); // Daily notifications
 cron.schedule("0 22 * * 0", () => sendNotificationsBasedOnFrequency("weekly")); // Weekly notifications (Sunday)
