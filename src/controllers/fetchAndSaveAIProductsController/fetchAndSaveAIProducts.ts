@@ -241,11 +241,9 @@ cron.schedule("0 9,19 * * *", async () => {
 });
 
 
-cron.schedule('2 10 * * *', () => { console.log("RUNNRS of Command running Nigerians!20200") })
-
-cron.schedule("0 22 * * *", () => sendNotificationsBasedOnFrequency("daily")); // Daily notifications
-cron.schedule("0 22 * * 0", () => sendNotificationsBasedOnFrequency("weekly")); // Weekly notifications (Sunday)
-cron.schedule("0 22 1 * *", () => sendNotificationsBasedOnFrequency("monthly")); // Monthly notifications (1st day)
+cron.schedule("0 11 * * *", () => sendNotificationsBasedOnFrequency("daily")); // Daily notifications
+cron.schedule("0 20 * * 0", () => sendNotificationsBasedOnFrequency("weekly")); // Weekly notifications (Sunday)
+cron.schedule("0 20 1 * *", () => sendNotificationsBasedOnFrequency("monthly")); // Monthly notifications (1st day)
 
 
 // // Fetch AI products twice a day
