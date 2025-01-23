@@ -7,7 +7,8 @@ export const profile = async (req: Request, res: Response): Promise<any> => {
         const user = await prisma.user.findUnique({
             where: {id: userData.id},
             include: {
-                interest: true
+                interest: true,
+                notifications: true
             }
         })
         console.log("hello", user)
