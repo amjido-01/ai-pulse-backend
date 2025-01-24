@@ -232,12 +232,9 @@ await sendEmail(user.email, "Your Latest AI Product Updates", emailBody);
   //await fetchAndSaveAIProducts();
 //});// Fetch products twice a day
 // CRON Jobs
-cron.schedule("0 9,19 * * *",async() => {
+cron.schedule("0 9 * * *",async() => {
   await fetchAndSaveAIProducts();
-});
-cron.schedule("0 22 * * *",async() => {
-  await fetchAndSaveAIProducts();
-  sendEmail("youndsadeeq10@gmail.com", "Your Latest AI Product Updates", "ye its time");
+  sendEmail("youndsadeeq10@gmail.com", "Your Latest AI Product Updates 9:00", "ye its time");
 });
 
 
