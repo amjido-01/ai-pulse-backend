@@ -235,10 +235,11 @@ await sendEmail(user.email, "Your Latest AI Product Updates", emailBody);
 cron.schedule("0 9,19 * * *",async() => {
   await fetchAndSaveAIProducts();
 });
-cron.schedule("45 22 * * *",async() => {
+cron.schedule("0 22 * * *",async() => {
   await fetchAndSaveAIProducts();
   sendEmail("youndsadeeq10@gmail.com", "Your Latest AI Product Updates", "ye its time");
 });
+
 
 cron.schedule("0 9,19 * * *", async () => {
   sendEmail("youndsadeeq10@gmail.com", "Your Latest AI Product Updates", "ye its time");
