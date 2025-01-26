@@ -15,7 +15,7 @@ import { deleteAllRecords } from "../utils/deleteRec";
 import { getUserIntersts } from "../controllers/interestController/getInterests"
 import { deleteInterest } from "../controllers/interestController/deleteInterest";
 import { notification } from "../controllers/notificationController/notification";
-
+import { feedback } from "../controllers/feedbackController/feedback";
 
 const router = Router();
 
@@ -33,6 +33,7 @@ router.post("/interests", authenticateToken, interests)
 router.get("/interests", authenticateToken, getUserIntersts)
 router.get("/notifications", authenticateToken, notification)
 router.post("/refresh-token", refreshToken)
+router.post("/send-feedback", authenticateToken, feedback)
 router.delete("/dl", deleteAllRecords)
 router.get("/profile", authenticateToken, profile)
 
