@@ -21,7 +21,8 @@ const profile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const user = yield db_1.default.user.findUnique({
             where: { id: userData.id },
             include: {
-                interest: true
+                interest: true,
+                notifications: true
             }
         });
         console.log("hello", user);

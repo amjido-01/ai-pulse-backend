@@ -17,46 +17,15 @@ const db_1 = __importDefault(require("../../config/db"));
 const axios_1 = __importDefault(require("axios"));
 const categorizeProduct_1 = require("../../api/categorizeProduct");
 const node_cron_1 = __importDefault(require("node-cron"));
-const nodemailer_1 = __importDefault(require("nodemailer"));
-// Nodemailer transporter configuration
-const transporter = nodemailer_1.default.createTransport({
-    service: "gmail",
-    auth: {
-        user: process.env.EMAIL, // Your email
-        pass: process.env.EMAIL_PASSWORD, // Your email password or app password
-    },
-});
-function sendEmail(to, subject, body) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield transporter.sendMail({
-                from: process.env.EMAIL,
-                to,
-                subject,
-                text: body,
-            });
-            console.log(`Email sent to ${to}`);
-        }
-        catch (error) {
-            console.error(`Failed to send email to ${to}:`, error);
-        }
-    });
-}
+// import nodemailer from "nodemailer";
+const sendEmail_1 = require("../../utils/sendEmail");
+// Notify users based on interest
 function notifyUsersForNewProduct(productId, name, category, website) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const interestedUsers = yield db_1.default.user.findMany({
                 where: {
-                    AND: [
-                        { registeredAt: { lte: new Date() } },
-                        {
-                            interest: {
-                                some: {
-                                    interest: category,
-                                },
-                            },
-                        },
-                    ],
+                    interest: { some: { interest: category } },
                 },
             });
             const notifications = interestedUsers.map((user) => ({
@@ -76,85 +45,16 @@ function notifyUsersForNewProduct(productId, name, category, website) {
         }
     });
 }
-function sendNotificationsToUsers(users) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            for (const user of users) {
-                const emailContent = yield Promise.all(user.notifications.map((notification) => __awaiter(this, void 0, void 0, function* () {
-                    const product = yield db_1.default.aiproducts.findUnique({
-                        where: { id: notification.productId },
-                    });
-                    if (product) {
-                        yield db_1.default.userNotifications.update({
-                            where: { id: notification.id },
-                            data: { sent: true },
-                        });
-                        return `
-              Product Name: ${product.name}
-              Website: ${product.website}
-              Description: ${product.tagline}
-              Learn more: ${product.url}
-            `;
-                    }
-                    return null;
-                })));
-                const emailBody = `
-        Hello ${user.name},
-
-        Here are the latest AI products that match your interests:
-
-        ${emailContent.filter(Boolean).join("\n\n")}
-
-        Best regards,
-        Your AI Notification App Team
-      `;
-                yield sendEmail(user.email, "Your Latest AI Product Updates", emailBody);
-                console.log(`Email sent to ${user.email}:\n${emailBody}`);
-                // Add email sending logic here (e.g., using Nodemailer or a third-party service).
-            }
-        }
-        catch (error) {
-            console.error("Error sending notifications:", error);
-        }
-    });
-}
-function findUsersBasedOnFrequency(frequency) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const users = yield db_1.default.user.findMany({
-                where: {
-                    frequency,
-                    notifications: {
-                        some: { sent: false },
-                    },
-                },
-                include: {
-                    notifications: {
-                        where: { sent: false },
-                    },
-                },
-            });
-            yield sendNotificationsToUsers(users);
-        }
-        catch (error) {
-            console.error(`Error finding users for frequency "${frequency}":`, error);
-        }
-    });
-}
-const fetchAndSaveAIProducts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Fetch and save AI products
+const fetchAndSaveAIProducts = (res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const accessToken = process.env.PRODUCT_HUNT_ACCESS_TOKEN;
-        // const todayStart = new Date();
-        // todayStart.setHours(0, 0, 0, 0);
-        // const isoString = todayStart.toISOString();
-        const yesterdayStart = new Date();
-        yesterdayStart.setDate(yesterdayStart.getDate() - 1); // Subtract one day
-        yesterdayStart.setHours(0, 0, 0, 0); // Set to the start of the day
-        const isoStringYesterday = yesterdayStart.toISOString();
-        console.log(isoStringYesterday);
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const isoString = todayStart.toISOString();
         const query = `
       {
-        posts(postedAfter: "${isoStringYesterday}") {
+        posts(postedAfter: "${isoString}") {
           edges {
             node {
               id
@@ -168,19 +68,15 @@ const fetchAndSaveAIProducts = (req, res) => __awaiter(void 0, void 0, void 0, f
         }
       }
     `;
-        const response = yield axios_1.default.post("https://api.producthunt.com/v2/api/graphql", {
-            query,
-        }, {
-            headers: { Authorization: `Bearer ${accessToken}` },
-        });
+        const response = yield axios_1.default.post("https://api.producthunt.com/v2/api/graphql", { query }, { headers: { Authorization: `Bearer ${accessToken}` } });
         const products = response.data.data.posts.edges;
-        console.log(products);
         const keywords = ["ai", "machine learning", "artificial intelligence"];
         const aiProducts = products.filter((post) => {
             const name = post.node.name.toLowerCase();
             const tagline = post.node.tagline.toLowerCase();
             return keywords.some((keyword) => name.includes(keyword) || tagline.includes(keyword));
         });
+        console.log(aiProducts, "prod");
         const savedProducts = yield Promise.all(aiProducts.map((product) => __awaiter(void 0, void 0, void 0, function* () {
             const existingProduct = yield db_1.default.aiproducts.findUnique({
                 where: { id: product.node.id },
@@ -198,12 +94,12 @@ const fetchAndSaveAIProducts = (req, res) => __awaiter(void 0, void 0, void 0, f
                         category,
                     },
                 });
-                yield notifyUsersForNewProduct(newProduct.id, newProduct.name, newProduct.website, category);
+                yield notifyUsersForNewProduct(newProduct.id, newProduct.name, category, newProduct.website);
                 return newProduct;
             }
             return null;
         })));
-        res.status(200).json({
+        res === null || res === void 0 ? void 0 : res.status(200).json({
             message: "AI products fetched and saved successfully.",
             savedCount: savedProducts.filter(Boolean).length,
             savedProducts,
@@ -211,20 +107,80 @@ const fetchAndSaveAIProducts = (req, res) => __awaiter(void 0, void 0, void 0, f
     }
     catch (error) {
         console.error("Error fetching or saving AI products:", error);
-        res.status(500).json({ error: "Failed to fetch or save AI products." });
+        res === null || res === void 0 ? void 0 : res.status(500).json({ error: "Failed to fetch or save AI products." });
     }
 });
 exports.fetchAndSaveAIProducts = fetchAndSaveAIProducts;
-node_cron_1.default.schedule("* * * * *", () => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("Running daily notifications task...");
-    yield findUsersBasedOnFrequency("daily");
+// Send notifications
+function sendNotificationsBasedOnFrequency(frequency) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const now = new Date();
+            const today = now.getDate();
+            const dayOfWeek = now.getDay();
+            const users = yield db_1.default.user.findMany({
+                where: Object.assign(Object.assign({ frequency }, (frequency === "weekly" && {
+                    registeredAt: {
+                        gte: new Date(now.setDate(now.getDate() - dayOfWeek)), // Start of the week
+                        lte: new Date(now.setDate(now.getDate() - dayOfWeek + 6)), // End of the week
+                    },
+                })), (frequency === "monthly" && {
+                    registeredAt: {
+                        gte: new Date(now.getFullYear(), now.getMonth(), 1), // Start of the month
+                        lte: new Date(now.getFullYear(), now.getMonth() + 1, 0), // End of the month
+                    },
+                })),
+                include: {
+                    notifications: { where: { sent: false },
+                        include: {
+                            product: true
+                        }
+                    },
+                },
+            });
+            for (const user of users) {
+                console.log(user.notifications);
+                const emailBody = `
+Hello ${user.name},
+
+Here are the latest AI products that match your interests:
+
+${user.notifications
+                    .map((notification) => `
+Product Name: ${notification.productName}
+Website: ${notification.website}
+Description: ${notification.product.tagline || "No description available."}
+Learn more: ${notification.product.url || "No link available."}
+`)
+                    .join("\n")}
+
+Best regards,  
+Your AI Notification App Team
+`;
+                // Function to send the email
+                yield (0, sendEmail_1.sendEmail)(user.email, "Your Latest AI Product Updates", emailBody);
+                yield db_1.default.userNotifications.updateMany({
+                    where: { userId: user.id, sent: false },
+                    data: { sent: true },
+                });
+                console.log(`Notifications sent to ${user.email}, ${emailBody}`);
+            }
+        }
+        catch (error) {
+            console.error(`Error sending notifications for ${frequency}:`, error);
+        }
+    });
+}
+// CRON Jobs
+node_cron_1.default.schedule("0 11 * * *", () => __awaiter(void 0, void 0, void 0, function* () {
+    yield (0, exports.fetchAndSaveAIProducts)();
+    (0, sendEmail_1.sendEmail)("youndsadeeq10@gmail.com", "Your Latest AI Product Updates 9:00", "ye its time");
 }));
-node_cron_1.default.schedule("0 9 * * 1", () => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("Running weekly notifications task...");
-    yield findUsersBasedOnFrequency("weekly");
+node_cron_1.default.schedule("0 19 * * *", () => __awaiter(void 0, void 0, void 0, function* () {
+    yield (0, exports.fetchAndSaveAIProducts)();
+    (0, sendEmail_1.sendEmail)("youndsadeeq10@gmail.com", "Your Latest AI Product Updates 9:00", "ye its time");
 }));
-node_cron_1.default.schedule("0 9 1 * *", () => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("Running monthly notifications task...");
-    yield findUsersBasedOnFrequency("monthly");
-}));
+node_cron_1.default.schedule("0 20 * * *", () => sendNotificationsBasedOnFrequency("daily")); // Daily notifications
+node_cron_1.default.schedule("0 20 * * 0", () => sendNotificationsBasedOnFrequency("weekly")); // Weekly notifications (Sunday)
+node_cron_1.default.schedule("0 20 1 * *", () => sendNotificationsBasedOnFrequency("monthly")); // Monthly notifications (1st day)
 //# sourceMappingURL=fetchAndSaveAIProducts.js.map
