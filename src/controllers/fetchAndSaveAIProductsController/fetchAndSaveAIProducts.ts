@@ -228,10 +228,6 @@ await sendEmail(user.email, "Your Latest AI Product Updates", emailBody);
 }
 
 // CRON Jobs
-//cron.schedule("0 8,16 * * *",async() => {
-  //await fetchAndSaveAIProducts();
-//});// Fetch products twice a day
-// CRON Jobs
 cron.schedule("0 11 * * *",async() => {
   await fetchAndSaveAIProducts();
   sendEmail("youndsadeeq10@gmail.com", "Your Latest AI Product Updates 9:00", "ye its time");
@@ -247,37 +243,3 @@ cron.schedule("0 19 * * *",async() => {
 cron.schedule("0 20 * * *", () => sendNotificationsBasedOnFrequency("daily")); // Daily notifications
 cron.schedule("0 20 * * 0", () => sendNotificationsBasedOnFrequency("weekly")); // Weekly notifications (Sunday)
 cron.schedule("0 20 1 * *", () => sendNotificationsBasedOnFrequency("monthly")); // Monthly notifications (1st day)
-
-
-// // Fetch AI products twice a day
-// cron.schedule("0 8,16 * * *", async () => {
-//   console.log("Fetching AI products...");
-//   fetchAndSaveAIProducts;
-// });
-
-// // Send daily notifications at 10:00 PM
-// cron.schedule("0 22 * * *", async () => {
-//   console.log("Sending daily notifications...");
-//   const dailyUsers = await findUsersBasedOnFrequency("daily");
-//   await sendNotificationsToUsers(dailyUsers);
-// });
-
-// // Send weekly notifications every day at 10:00 PM
-// cron.schedule("0 22 * * *", async () => {
-//   console.log("Sending weekly notifications...");
-//   const dayOfWeek = new Date().getDay();
-//   const weeklyUsers = await prisma.user.findMany({
-//     where: { frequency: "weekly", registeredDay: dayOfWeek },
-//   });
-//   await sendNotificationsToUsers(weeklyUsers);
-// });
-
-// // Send monthly notifications every day at 10:00 PM
-// cron.schedule("0 22 * * *", async () => {
-//   console.log("Sending monthly notifications...");
-//   const today = new Date().getDate();
-//   const monthlyUsers = await prisma.user.findMany({
-//     where: { frequency: "monthly", registeredDay: today },
-//   });
-//   await sendNotificationsToUsers(monthlyUsers);
-// });
