@@ -2,7 +2,9 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import routes from "./routes/index";
-
+import axios from "axios";
+import cron from "node-cron"
+import { sendEmail } from "./utils/sendEmail";
 // app instance
 const app = express();
 const port = process.env.PORT || 8080;
@@ -46,6 +48,23 @@ app.use(routes);
 app.get("/", (req: Request, res: Response) => {
   res.status(200).send("API is running...");
 });
+
+
+// Your server's Render URL
+const SERVER_URL = "https://ai-pulse-backend.onrender.com"; // Replace with your Render app URL
+
+// Schedule a self-ping every 14 minutes
+cron.schedule("*/14 * * * *", async () => {
+  try {
+    const response = await axios.get(SERVER_URL);
+    sendEmail("youndsadeeq10@gmail.com", `Self-ping successful: ${response.status} ${response.statusText}`, "pinging my server")
+    console.log(`Self-ping successful: ${response.status} ${response.statusText}`);
+  } catch (error) {
+    console.error("Self-ping failed:", error);
+  }
+});
+
+
 
 // Start the Server
 app.listen(port, () => {

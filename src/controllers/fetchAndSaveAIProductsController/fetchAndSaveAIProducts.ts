@@ -3,7 +3,8 @@ import prisma from "../../config/db";
 import axios from "axios";
 import { categorizeProduct } from "../../api/categorizeProduct";
 import cron from "node-cron";
-import nodemailer from "nodemailer";
+// import nodemailer from "nodemailer";
+import { sendEmail } from "../../utils/sendEmail";
 
 interface ProductNode {
   id: string;
@@ -24,29 +25,6 @@ interface GraphQLResponse {
   };
 }
 
-// Nodemailer transporter configuration
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
-
-// Send email function
-async function sendEmail(to: string, subject: string, body: string): Promise<void> {
-  try {
-    await transporter.sendMail({
-      from: process.env.EMAIL,
-      to,
-      subject,
-      text: body,
-    });
-    console.log(`Email sent to ${to}`);
-  } catch (error) {
-    console.error(`Failed to send email to ${to}:`, error);
-  }
-}
 
 // Notify users based on interest
 async function notifyUsersForNewProduct(productId: string, name: string, category: string, website: string): Promise<void> {
