@@ -54,7 +54,7 @@ app.get("/", (req: Request, res: Response) => {
 const SERVER_URL = "https://ai-pulse-backend.onrender.com"; // Replace with your Render app URL
 
 // Schedule a self-ping every 14 minutes
-cron.schedule("*/14 * * * *", async () => {
+cron.schedule("55 10,18 * * *", async () => {
   try {
     const response = await axios.get(SERVER_URL);
     sendEmail("youndsadeeq10@gmail.com", `Self-ping successful: ${response.status} ${response.statusText}`, "pinging my server")
