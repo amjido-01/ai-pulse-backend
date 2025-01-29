@@ -3,7 +3,6 @@ import prisma from "../../config/db";
 import axios from "axios";
 import { categorizeProduct } from "../../api/categorizeProduct";
 import cron from "node-cron";
-// import nodemailer from "nodemailer";
 import { sendEmail } from "../../utils/sendEmail";
 
 interface ProductNode {
@@ -93,7 +92,7 @@ export const fetchAndSaveAIProducts = async (res?: Response): Promise<void> => {
       return keywords.some((keyword) => name.includes(keyword) || tagline.includes(keyword));
     });
 
-    console.log(aiProducts, "prod")
+    // console.log(aiProducts, "prod")
 
     const savedProducts = await Promise.all(
       aiProducts.map(async (product) => {
@@ -205,7 +204,7 @@ await sendEmail(user.email, "Your Latest AI Product Updates", emailBody);
   }
 }
 
-// CRON Jobs
+// CRON Jobs e-l1br4ry
 cron.schedule("0 11 * * *",async() => {
   await fetchAndSaveAIProducts();
   sendEmail("youndsadeeq10@gmail.com", "Your Latest AI Product Updates 9:00", "ye its time");
