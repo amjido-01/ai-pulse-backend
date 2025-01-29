@@ -23,14 +23,21 @@ export const login = async (req: Request, res: Response): Promise<any> => {
 
         // Check if the user exists
         if (!existingUser) {
-            return res.status(403).json({ message: "Invalid login credentials" });
+            return  res.status(404).json({
+                responseSuccessful: true,
+                responseMessage: "Invalid login credentials",
+                responseBody: null
+            });
         }
 
         // Verify password
-        // const salt = bcrypt.genSaltSync(10);
         const validPassword = await bcrypt.compare(password, existingUser.password)
         if (!validPassword) {
-            return res.status(403).json({ message: "Invalid login credentials" });
+            return  res.status(404).json({
+                responseSuccessful: true,
+                responseMessage: "Invalid login credentials",
+                responseBody: null
+            });
         }
 
         // Generate tokens
@@ -67,7 +74,10 @@ export const login = async (req: Request, res: Response): Promise<any> => {
             responseBody: existingUser
         });
     } catch (error) {
-        console.error("Error during login:", error);
-        return res.status(500).json({ message: "An error occurred during login" });
+        res.status(500).json({
+            responseSuccessful: false,
+            responseMessage: error,
+            responseBody: null
+        });
     }
 }
