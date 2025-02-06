@@ -51,7 +51,7 @@ app.get("/", (req: Request, res: Response) => {
 
 
 // Your server's Render URL
-const SERVER_URL = "https://ai-pulse-backend.onrender.com"; // Replace with your Render app URL
+const SERVER_URL = "https://ai-pulse-backend.onrender.com"; // 
 
 const makeReq = () => {
   // Schedule a self-ping every 14 minutes
