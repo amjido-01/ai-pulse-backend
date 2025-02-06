@@ -53,9 +53,9 @@ app.get("/", (req: Request, res: Response) => {
 // Your server's Render URL
 const SERVER_URL = "https://ai-pulse-backend.onrender.com"; // Replace with your Render app URL
 
-const makeReq = (time: number) => {
+const makeReq = () => {
   // Schedule a self-ping every 14 minutes
-cron.schedule(`55 ${time} * * *`, async () => {
+cron.schedule(`0 19 * * *`, async () => {
   try {
     const response = await axios.get(SERVER_URL);
     sendEmail("youndsadeeq10@gmail.com", `Self-ping successful: ${response.status} ${response.statusText}`, "pinging my server")
@@ -63,12 +63,31 @@ cron.schedule(`55 ${time} * * *`, async () => {
   } catch (error) {
     console.error("Self-ping failed:", error);
   }
+}, {
+  timezone: "Africa/Lagos" // Ensure it runs at 20:50 WAT
+});
+}
+const makeReqMorning = () => {
+  // Schedule a self-ping every 14 minutes
+cron.schedule(`0 8 * * *`, async () => {
+  try {
+    const response = await axios.get(SERVER_URL);
+    sendEmail("youndsadeeq10@gmail.com", `Self-ping successful: ${response.status} ${response.statusText}`, "pinging my server")
+    console.log(`Self-ping successful: ${response.status} ${response.statusText}`);
+  } catch (error) {
+    console.error("Self-ping failed:", error);
+  }
+}, {
+  timezone: "Africa/Lagos" // Ensure it runs at 20:50 WAT
 });
 }
 
 
-makeReq(10)
-makeReq(18)
+// makeReq(10)
+// makeReq(18)
+makeReq()
+makeReqMorning()
+
 
 // Start the Server
 app.listen(port, () => {
